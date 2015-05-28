@@ -1,0 +1,106 @@
+7/4/13
+
+Attempting to add logic to LocalizeRC that will carry forward adjustments
+to dialog size/pos. 
+
+7/5/13
+
+Have revised logic to match by dialog section and line within the section.
+This should match reliably and will skip updates when design changes to the
+dialog have invalidated matching.
+
+The program text window will now show log messages rather than the the RC
+input data. 
+
+Progress! The revised app is now finding all matching dialog sections and
+the keys within it.
+
+One odd item noted - in comparing the old and new RC files it appears that
+VS has "downgraded" some dialogs from DIALOGEX to DIALOG without any apparent
+reason. This causes a mismatch on those dialogs that suppresses size/pos
+updates. 
+-- It should be safe to ignore differences in dialog type since the structure
+of the relevent entries is the same for both. See if this can be done to
+update those sections despite the dialog type difference.
+
+Done:
+ 1. Allow match on DIALOG vs DIALOGEX
+ -- DONE! required using key variants during the section match search
+ 2. Suppress updates on hits to the FILEVERSION and PRODUCTVERSION keys.
+ Those shouldn't be altered.
+ -- Noted that those hits set the 4 numbers in the version into val5
+ rather than val due to the missing comma in front of the set. Simple way
+ to skip these is to do it if val is empty.
+ -- DONE! the val5 trick could NOT be used here because section headings
+ also are missing the leading comma. The result is actually a space in
+ val and the numbers in val5. An explicit test for the offending sections
+ is now done so the list may need to grow later if new false hits occur
+ due to new sections.
+ 3. Need to process margin data in DESIGNINFO section
+ -- DONE!
+ 4. Discard the ICON, BITMAP, and CURSOR sections of the output steam if user
+ has opted to NOT copy the RES folder.
+ -- DONE!
+ 5. Do the actual size/pos replacements!
+ -- DONE! the size/pos values are now being correctly replaced in the output
+ 
+!!Somehow managed to mess up the regex expression and now the searches are
+invalid. Suspect that original expression was returning the separator between
+key and val as val5. That subexpression is not non-reporting and suddenly
+val5 is always blank.
+-- was trying to get the trailing separators off of the key via the regex
+expression. This was not going well.
+-- ToDo: finalize the regex expression and then tweak the code to handle the
+new regex expression iteration results.
+-- DONE!
+
+7/6/13
+
+Fixed regex expression. Discovered that some keys ended in a number and it
+was likely that those were mishandled before (e.g., IDC_BUTTON5). The last
+char of the key was being taken as the first value in the size/pos vector.
+That has been corrected by a mod to the expression.
+
+Done:
+ 1. Consider ignoring LTEXT / CTEXT / RTEXT differences in keys
+ -- DONE! the C/L/R variants now match each other (but not EDITTEXT)
+ 2. Get design info section merge coded
+ -- DONE! and working
+ 3. All buffer offsets should be UINT or LONG
+ -- NOPE! all CString functions use int for offsets! An int is a 32-bit
+ value.
+
+The dialog layout and design info merges are now in dedicated functions
+called from the main update event function.
+Added stats to each processing function that report to the log output
+window, which no longer shows the RC input file. 
+
+Next: icon and bitmap section discard -- DONE!
+
+7/7/13
+
+The first release candidate of LocalizeRC v1.7 is complete!
+
+Create a Unicode Release version for further testing.
+-- DONE!
+
+ToDo:
+ 1. Add a messages to the log output for INI processing.
+ -- DONE! It's very limited - don't want to change existing code
+ at this point.
+ *2. Add a log save option
+ -- Could take the "Edit INI" function and use it to open the log
+ in an editor. Don't see value of having edit INI function in app.
+ Translators won't use it there.
+ 3. Figure out why build fails to detect edits to the resources
+ resulting in need to do a complete rebuild.
+ -- DONE! needed reference to resource.h in main app cpp files.
+ It was in stdafx.h - it doesn't belong there.
+ *4. See if Version resource can be updated to indicate DLL rather
+than Application.
+
+
+ 
+
+
+

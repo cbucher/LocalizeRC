@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "German", "German\German.vcxproj", "{37FD1165-5236-42B7-BDBA-00ADBD2B1788}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LocalizeRC", "LocalizeRC.vcxproj", "{8E7B7700-97D3-41B9-8B7C-E37F6F23D777}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+		UNICODE Debug|Win32 = UNICODE Debug|Win32
+		UNICODE Release|Win32 = UNICODE Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{37FD1165-5236-42B7-BDBA-00ADBD2B1788}.Debug|Win32.ActiveCfg = Debug|Win32
+		{37FD1165-5236-42B7-BDBA-00ADBD2B1788}.Debug|Win32.Build.0 = Debug|Win32
+		{37FD1165-5236-42B7-BDBA-00ADBD2B1788}.Release|Win32.ActiveCfg = Release|Win32
+		{37FD1165-5236-42B7-BDBA-00ADBD2B1788}.Release|Win32.Build.0 = Release|Win32
+		{37FD1165-5236-42B7-BDBA-00ADBD2B1788}.UNICODE Debug|Win32.ActiveCfg = UNICODE Debug|Win32
+		{37FD1165-5236-42B7-BDBA-00ADBD2B1788}.UNICODE Debug|Win32.Build.0 = UNICODE Debug|Win32
+		{37FD1165-5236-42B7-BDBA-00ADBD2B1788}.UNICODE Release|Win32.ActiveCfg = UNICODE Release|Win32
+		{37FD1165-5236-42B7-BDBA-00ADBD2B1788}.UNICODE Release|Win32.Build.0 = UNICODE Release|Win32
+		{8E7B7700-97D3-41B9-8B7C-E37F6F23D777}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8E7B7700-97D3-41B9-8B7C-E37F6F23D777}.Debug|Win32.Build.0 = Debug|Win32
+		{8E7B7700-97D3-41B9-8B7C-E37F6F23D777}.Release|Win32.ActiveCfg = Release|Win32
+		{8E7B7700-97D3-41B9-8B7C-E37F6F23D777}.Release|Win32.Build.0 = Release|Win32
+		{8E7B7700-97D3-41B9-8B7C-E37F6F23D777}.UNICODE Debug|Win32.ActiveCfg = UNICODE Debug|Win32
+		{8E7B7700-97D3-41B9-8B7C-E37F6F23D777}.UNICODE Debug|Win32.Build.0 = UNICODE Debug|Win32
+		{8E7B7700-97D3-41B9-8B7C-E37F6F23D777}.UNICODE Release|Win32.ActiveCfg = UNICODE Release|Win32
+		{8E7B7700-97D3-41B9-8B7C-E37F6F23D777}.UNICODE Release|Win32.Build.0 = UNICODE Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
