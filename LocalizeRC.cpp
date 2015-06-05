@@ -56,7 +56,16 @@ BOOL CLocalizeRCApp::InitInstance()
 		if( !LoadLangIDDLL(GetUserDefaultLangID()) )
 			LoadLangIDDLL(GetSystemDefaultLangID());
 
-	CLocalizeRCDlg dlg;
+	CString strWorkspace(_T(""));
+
+	LPTSTR szCommandLine = ::GetCommandLineW();
+	int argc = 0;
+	LPWSTR * argv = ::CommandLineToArgvW(szCommandLine, &argc);
+
+	if(argc > 1)
+		strWorkspace = argv[1];
+
+	CLocalizeRCDlg dlg(strWorkspace);
 	dlg.LangID = CurLangID;
 
 	m_pMainWnd = &dlg;

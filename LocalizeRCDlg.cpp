@@ -152,11 +152,11 @@ BOOL CAboutDlg::OnInitDialog()
 }
 
 // CLocalizeRCDlg dialog
-CLocalizeRCDlg::CLocalizeRCDlg(CWnd* pParent /*=NULL*/)
+CLocalizeRCDlg::CLocalizeRCDlg(CString& strWorkspace, CWnd* pParent /*=NULL*/)
 	: CDialog(CLocalizeRCDlg::IDD, pParent)
 	, m_bCopy(FALSE)
 	, m_nObsoleteItems(0)
-	, m_strWorkspace(_T(""))
+	, m_strWorkspace(strWorkspace)
 	, m_strEdit(_T(""))
 	, m_strTextmode(_T(""))
 	, m_bNoSort(FALSE)
@@ -165,8 +165,11 @@ CLocalizeRCDlg::CLocalizeRCDlg(CWnd* pParent /*=NULL*/)
 	, m_strOutputRC(_T(""))
 	, m_strAbout(_T(""))
 {
-	// last used Workspace from registry
-	m_strWorkspace = AfxGetApp()->GetProfileString( SEC_LASTPROJECT, ENT_WORKSPACE );
+	if(m_strWorkspace.IsEmpty())
+	{
+		// last used Workspace from registry
+		m_strWorkspace = AfxGetApp()->GetProfileString(SEC_LASTPROJECT, ENT_WORKSPACE);
+	}
 }
 
 void CLocalizeRCDlg::DoDataExchange(CDataExchange* pDX)

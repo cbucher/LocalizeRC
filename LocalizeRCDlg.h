@@ -11,7 +11,7 @@ class CLocalizeRCDlg : public CDialog
 {
 // Construction
 public:
-	CLocalizeRCDlg(CWnd* pParent = NULL);	// standard constructor
+	CLocalizeRCDlg(CString& strWorkspace, CWnd* pParent = NULL);	// standard constructor
 
 // Dialog Data
 	enum { IDD = IDD_LOCALIZERC_DIALOG };
