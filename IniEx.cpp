@@ -16,34 +16,77 @@ static char THIS_FILE[]=__FILE__;
 // UNICODE File Reader
 ////////////////////////////////
 
-CStdioUnicodeFile::CStdioUnicodeFile():
-	CStdioFile()
+CStdioUnicodeFile::CStdioUnicodeFile(CStdioUnicodeFile::FILEENCODING encoding):
+	CStdioFile(),
+  encoding(encoding)
 {
 }
 
-CStdioUnicodeFile::CStdioUnicodeFile(LPCTSTR lpszFileName, UINT nOpenFlags):
-	CStdioFile(lpszFileName, nOpenFlags)
+CStdioUnicodeFile::CStdioUnicodeFile(LPCTSTR lpszFileName, UINT nOpenFlags, CStdioUnicodeFile::FILEENCODING encoding):
+	CStdioFile(lpszFileName, nOpenFlags),
+  encoding(encoding)
 {
+}
+
+void CStdioUnicodeFile::WriteBOM()
+{
+	switch(encoding)
+	{
+	case CStdioUnicodeFile::FILEENCODING_UTF16LE:
+		{
+			BYTE bom[2] = { 0xFF, 0xFE };
+			Write(bom, 2);
+		}
+		break;
+
+	case CStdioUnicodeFile::FILEENCODING_UTF8:
+		{
+			BYTE bom[3] = { 0xEF, 0xBB, 0xBF };
+			Write(bom, 3);
+		}
+		break;
+	}
+}
+
+CStdioUnicodeFile::FILEENCODING CStdioUnicodeFile::ReadBOM()
+{
+	BYTE dummy[3] = {0, 0, 0};
+	UINT len = Read(dummy, 2);
+
+	// check first two bytes (BOT)
+	if (len == 2) 
+	{
+		if (dummy[0] == 0xFF && dummy[1] == 0xFE)
+		{
+			return CStdioUnicodeFile::FILEENCODING_UTF16LE;
+		}
+	}
+
+	// check first three bytes (BOM)
+	len += Read(dummy + 2, 1);
+	if (len == 3) 
+	{
+		if (dummy[0] == 0xEF && dummy[1] == 0xBB && dummy[2] == 0xBF)
+		{
+			return CStdioUnicodeFile::FILEENCODING_UTF8;
+		}
+	}
+
+	Seek(0, CFile::begin);
+	return CStdioUnicodeFile::FILEENCODING_ANSI;
 }
 
 // static method to check if file is unicode
-BOOL CStdioUnicodeFile::IsUnicode(LPCTSTR lpszFileName)
+CStdioUnicodeFile::FILEENCODING CStdioUnicodeFile::GetFileEncoding(LPCTSTR lpszFileName)
 {
-	CStdioUnicodeFile File;
+	CStdioUnicodeFile File(CStdioUnicodeFile::FILEENCODING_UNKNOWN);
 	if( !File.Open( lpszFileName, CFile::modeRead | CFile::typeBinary ) )
-		return false;
-	// check first two bytes (BOT)
-	BYTE fffe[2] = {0, 0};
-	if (2 == File.Read(&fffe, 2)) 
-	{
-		if (fffe[0] == 0xFF || fffe[1] == 0xFE)
-		{
-			File.Close();
-			return true;
-		}
-	}
+		return CStdioUnicodeFile::FILEENCODING_UNKNOWN;
+
+	CStdioUnicodeFile::FILEENCODING result = File.ReadBOM();
+
 	File.Close();
-	return false;
+	return result;
 }
 
 BOOL CStdioUnicodeFile::ReadString(CString& rString)
@@ -51,38 +94,147 @@ BOOL CStdioUnicodeFile::ReadString(CString& rString)
 	ASSERT_VALID(this);
 	rString = _T("");    // empty string without deallocating
 	const int nMaxSize = 128;
-	LPTSTR lpsz = rString.GetBuffer(nMaxSize);
-	LPTSTR lpszResult;
-	int nLen = 0;
-	for (;;)
+	BOOL result = FALSE;
+
+	switch(encoding)
 	{
-		lpszResult = _fgetts(lpsz, nMaxSize+1, m_pStream);
-		rString.ReleaseBuffer();
-		// handle error/eof case
-		if (lpszResult == NULL && !feof(m_pStream))
+#ifdef UNICODE
+	case CStdioUnicodeFile::FILEENCODING_UTF8:
 		{
-			clearerr(m_pStream);
-			AfxThrowFileException(CFileException::genericException, _doserrno,
-				m_strFileName);
+			char * utf8 = nullptr;
+			size_t size = 1;
+			size_t len = 0;
+			for(;;)
+			{
+				char * p = static_cast<char*>(realloc(utf8, size += nMaxSize));
+				if(p == nullptr)
+				{
+					free(utf8);
+					AfxThrowMemoryException();
+				}
+				utf8 = p;
+				p = fgets(utf8 + len, nMaxSize + 1, m_pStream);
+				// handle error/eof case
+				if(p == nullptr && !feof(m_pStream))
+				{
+					free(utf8);
+					clearerr(m_pStream);
+					AfxThrowFileException(CFileException::genericException, _doserrno,
+										  m_strFileName);
+				}
+
+				// if string is read completely or EOF
+				if(p == nullptr)
+				{
+					return FALSE;
+				}
+
+				if(strlen(utf8 + len) < nMaxSize ||
+				   utf8[len + nMaxSize - 1] == '\n')
+				{
+					break;
+				}
+
+				len += nMaxSize;
+			}
+
+			len = strlen(utf8);
+			int rc = ::MultiByteToWideChar(
+				CP_UTF8, 0,
+				utf8, len,
+				nullptr, 0);
+
+			if(rc > 0)
+			{
+				wchar_t * lpsz = rString.GetBuffer(rc);
+				rc = ::MultiByteToWideChar(
+					CP_UTF8, 0,
+					utf8, len,
+					lpsz, rc + 1);
+				lpsz[rc] = 0;
+				rString.ReleaseBuffer();
+
+				result = TRUE;
+			}
+
+			free(utf8);
 		}
-		// if string is read completely or EOF
-		if (lpszResult == NULL ||
-			(nLen = lstrlen(lpsz)) < nMaxSize ||
-			lpsz[nLen-1] == '\n')
-			break;
-		nLen = rString.GetLength();
-		lpsz = rString.GetBuffer(nMaxSize + nLen) + nLen;
+		break;
+#endif
+	default:
+		{
+			LPTSTR lpsz = rString.GetBuffer(nMaxSize);
+			LPTSTR lpszResult;
+			int nLen = 0;
+			for(;;)
+			{
+				lpszResult = _fgetts(lpsz, nMaxSize + 1, m_pStream);
+				rString.ReleaseBuffer();
+				// handle error/eof case
+				if(lpszResult == NULL && !feof(m_pStream))
+				{
+					clearerr(m_pStream);
+					AfxThrowFileException(CFileException::genericException, _doserrno,
+										  m_strFileName);
+				}
+				// if string is read completely or EOF
+				if(lpszResult == NULL ||
+				   (nLen = lstrlen(lpsz)) < nMaxSize ||
+				   lpsz[nLen - 1] == '\n')
+				   break;
+				nLen = rString.GetLength();
+				lpsz = rString.GetBuffer(nMaxSize + nLen) + nLen;
+			}
+			result = lpszResult != NULL;
+		}
 	}
+
 	// remove '\n' from end of string if present
-	lpsz = rString.GetBuffer(0);
-	nLen = rString.GetLength();
+	LPTSTR lpsz = rString.GetBuffer(0);
+	int nLen = rString.GetLength();
 	if (nLen != 0 && lpsz[nLen-1] == '\n') {
 		rString.GetBufferSetLength(nLen-1);
 		nLen = rString.GetLength();
 		if (nLen != 0 && lpsz[nLen-1] == '\r')
 			rString.GetBufferSetLength(nLen-1);
 	}
-	return lpszResult != NULL;
+
+	return result;
+}
+
+void CStdioUnicodeFile::WriteString(LPCTSTR lpsz)
+{
+	switch(encoding)
+	{
+#ifdef UNICODE
+	case CStdioUnicodeFile::FILEENCODING_UTF8:
+		{
+			int len = static_cast<int>(wcslen(lpsz));
+			int rc = ::WideCharToMultiByte(
+				CP_UTF8, 0,
+				lpsz, len,
+				nullptr, 0,
+				nullptr, nullptr);
+			if(rc > 0)
+			{
+				char * utf8 = static_cast<char*>(malloc(rc + 1));
+				if(utf8)
+				{
+					rc = ::WideCharToMultiByte(
+						CP_UTF8, 0,
+						lpsz, len,
+						utf8, rc,
+						nullptr, nullptr);
+
+					Write(utf8, rc);
+				}
+			}
+		}
+		break;
+#endif
+	default:
+		CStdioFile::WriteString(lpsz);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -253,7 +405,7 @@ BOOL CIniEx::Open(LPCTSTR pFileName,
 	if (createIfNotExist)
 		mode= mode | CFile::modeCreate | CFile::modeNoTruncate;
 
-	BOOL bIsUnicode = CStdioUnicodeFile::IsUnicode( pFileName );
+	CStdioUnicodeFile::FILEENCODING encoding = CStdioUnicodeFile::GetFileEncoding( pFileName );
 
 	try
 	{
@@ -269,37 +421,40 @@ BOOL CIniEx::Open(LPCTSTR pFileName,
 			m_Values[m_SectionNo+i]=NULL;
 		}		
 
-		CStdioUnicodeFile file;
+		CStdioUnicodeFile file(encoding);
 
-		#ifdef UNICODE	
-			if( bIsUnicode )
-			{	
-				if( !file.Open( pFileName, mode | CFILEFLAG_UNICODEHELPER, &e ) )
-				{
-					return false;
-				}
-				// skip first two bytes
-				file.Seek( 2, CFile::begin );
-			}
-			else
+#ifdef UNICODE
+		switch(encoding)
+		{
+		case CStdioUnicodeFile::FILEENCODING_UTF16LE:
+		case CStdioUnicodeFile::FILEENCODING_UTF8:
+			if(!file.Open(pFileName, mode | CFILEFLAG_UNICODEHELPER, &e))
 			{
-				if( !file.Open( pFileName, mode, &e ) )
-					return false;
+				return false;
 			}
-		#else
-			if( bIsUnicode )
+			
+			file.ReadBOM();
+			break;
+
+		default:
+			if(!file.Open(pFileName, mode, &e))
+				return false;
+		}
+#else
+      switch( encoding )
 			{
+      case CStdioUnicodeFile::FILEENCODING_UTF16LE:
+      case CStdioUnicodeFile::FILEENCODING_UTF8:
 				CString strErr;
 				strErr.Format( IDS_UNICODEFILE, pFileName );
 				AfxMessageBox( strErr );
 				return false;	// cancel
-			}
-			else
-			{
+
+      default:
 				if( !file.Open( pFileName, mode, &e ) )
 					return false;
 			}
-		#endif
+#endif
 
 		for(;;)
 		{
@@ -483,7 +638,7 @@ CString CIniEx::WriteFile(BOOL makeBackup/*=FALSE*/)
 	}
 
 	
-	CStdioUnicodeFile file;
+	CStdioUnicodeFile file(CStdioUnicodeFile::FILEENCODING_UTF8);
 	if (!file.Open(m_FileName, CFILEFLAG_UNICODEHELPER | CFile::modeCreate | CFile::modeWrite)) 
 	{
 		#ifdef _DEBUG
@@ -494,10 +649,8 @@ CString CIniEx::WriteFile(BOOL makeBackup/*=FALSE*/)
 
 	CString strNewline;
 
+	file.WriteBOM();
 #ifdef UNICODE
-	// write 0xFF 0xFE
-	BYTE fffe[2] = { 0xFF, 0xFE };
-	file.Write(fffe, 2);
 	strNewline = "\r\n";
 #else
 	strNewline = "\n";

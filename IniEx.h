@@ -18,11 +18,26 @@
 class CStdioUnicodeFile: public CStdioFile
 {
 public:
-	CStdioUnicodeFile();
-	CStdioUnicodeFile(LPCTSTR lpszFileName, UINT nOpenFlags);
-	BOOL ReadString(CString& cstr);
+  enum FILEENCODING
+  {
+    FILEENCODING_UNKNOWN,
+    FILEENCODING_ANSI,
+    FILEENCODING_UTF16LE,
+    FILEENCODING_UTF8
+  };
 
-	static BOOL CStdioUnicodeFile::IsUnicode(LPCTSTR lpszFileName);
+	CStdioUnicodeFile(FILEENCODING encoding);
+	CStdioUnicodeFile(LPCTSTR lpszFileName, UINT nOpenFlags, FILEENCODING encoding);
+	BOOL ReadString(CString& cstr);
+	void WriteString(LPCTSTR lpsz);
+
+	void WriteBOM();
+	FILEENCODING ReadBOM();
+
+	static FILEENCODING GetFileEncoding(LPCTSTR lpszFileName);
+
+private:
+  FILEENCODING encoding;
 };
 
 #define MAX_SECTION_COUNT	512

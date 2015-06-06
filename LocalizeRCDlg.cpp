@@ -382,19 +382,21 @@ BOOL CLocalizeRCDlg::OpenRCFile( CString filename, CString &strbuf, BOOL bShowEr
 		return false;
 	}
 
-	BOOL bIsUnicode = CStdioUnicodeFile::IsUnicode( filename );
+	CStdioUnicodeFile::FILEENCODING encoding = CStdioUnicodeFile::GetFileEncoding( filename );
 
 	try
 	{
-	#ifdef UNICODE	
-		if( bIsUnicode )
+	#ifdef UNICODE
+		switch(encoding)
 		{
-			pFile = new CStdioUnicodeFile( filename, CFile::modeRead | CFILEFLAG_UNICODEHELPER );
-			// skip first two bytes
-			pFile->Seek( 2, CFile::begin );
+		case CStdioUnicodeFile::FILEENCODING_UTF16LE:
+		case CStdioUnicodeFile::FILEENCODING_UTF8:
+			pFile = new CStdioUnicodeFile(filename, CFile::modeRead | CFILEFLAG_UNICODEHELPER, encoding);
+			static_cast<CStdioUnicodeFile*>(pFile)->ReadBOM();
+			break;
+		default:
+			pFile = new CStdioUnicodeFile( filename, CFile::modeRead, CStdioUnicodeFile::FILEENCODING_ANSI );
 		}
-		else
-			pFile = new CStdioUnicodeFile( filename, CFile::modeRead );
 	#else
 		if( bIsUnicode )
 		{
@@ -980,13 +982,11 @@ void CLocalizeRCDlg::OnBnClickedCreateoutput()
 
 	try
 	{
-		CFile File( m_strOutputRC, CFILEFLAG_UNICODEHELPER | CFile::modeWrite|CFile::modeCreate );
+		CStdioUnicodeFile File( m_strOutputRC, CFILEFLAG_UNICODEHELPER | CFile::modeWrite|CFile::modeCreate, CStdioUnicodeFile::FILEENCODING_UTF8 );
 	#ifdef UNICODE
-		// write 0xFF 0xFE
-		BYTE fffe[2] = { 0xFF, 0xFE };
-		File.Write(fffe, 2);
+		File.WriteBOM();
 	#endif
-		File.Write( newRCdata, sizeof(TCHAR) * newRCdata.GetLength() );
+		File.WriteString( newRCdata );
 		File.Close();
 	}
 	catch( CFileException* e )
