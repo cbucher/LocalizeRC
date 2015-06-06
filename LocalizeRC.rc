@@ -158,12 +158,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Konrad Windszus and WDPS Software"
             VALUE "FileDescription", "A tool for localizing/translating Resource Scripts (RC files)"
-            VALUE "FileVersion", "1.7"
+            VALUE "FileVersion", "1.8"
             VALUE "InternalName", "LocalizeRC.exe"
-            VALUE "LegalCopyright", "(c) 2003- 2004 by Konrad Windszus, 2013 by WDPS Software.  All rights reserved."
+            VALUE "LegalCopyright", "(c) 2003- 2004 by Konrad Windszus, 2013 by WDPS Software, 2015 by Christophe Bucher.  All rights reserved."
             VALUE "OriginalFilename", "LocalizeRC.exe"
             VALUE "ProductName", "LocalizeRC"
-            VALUE "ProductVersion", "1.7"
+            VALUE "ProductVersion", "1.8"
         END
     END
     BLOCK "VarFileInfo"
@@ -262,14 +262,14 @@ END
 STRINGTABLE 
 BEGIN
     IDS_OLDFILEFORMAT       "The INI file contains sections, which are created with LocalizeRC before version 1.2. To make them compatible, remove all trailing and leading whitespaces from the section names (the ones within []) and try again!"
-    IDS_UNICODE             "UNICODE"
+    IDS_UNICODE             "UNICODE (UTF-8)"
     IDS_ANSI                "ANSI"
     IDS_UNICODEFILE         "The file ""%s"" is in UNICODE format, but this version of LocalizeRC is only able to read ANSI format. Please convert it with an appropriate tool!"
     IDS_ERR_FILENAMEEMPTY   "Please define all workspace files (Input RC, Lanuage INI, Output RC) first!"
     IDS_ERR_OPENWORKSPACE   "Could not open workspace!"
     IDS_ERR_UNKNOWN         "Unknown error %d!"
     IDS_ERR_OPENINI         "Could not open INI file."
-    IDS_ABOUT               "Localize RC v1.7 -© 2003-2004\nby Konrad Windszus\nUpdates by WDPS Software 2013"
+    IDS_ABOUT               "Localize RC v1.8 -© 2003-2004\nby Konrad Windszus\nUpdates by WDPS Software 2013\n Updates by Christophe Bucher 2015"
     IDS_LWSPACELOADED       "Workspace loaded!"
     IDS_LDIALOGSECFOUND     "Dialog section '%1' processed - %2!d! items found, %3!d! items updated, %4!d! items skipped"
     IDS_LKEYSKIPPED         "Entry '%1' in current section skipped due to mismatch with new entry of '%2'"
