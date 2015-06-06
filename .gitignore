@@ -1,0 +1,14 @@
+UNICODE_Release/
+UNICODE_Debug/
+ipch/
+
+*.aps
+*.user
+*.opensdf
+*.sdf
+*.suo
+
+*~
+*.bak
+*.orig
+*.swp
