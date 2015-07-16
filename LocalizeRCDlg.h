@@ -92,6 +92,7 @@ private:
 	void MergeOldRCFileDialogLayout( CString &oldRCdata );
 	void MergeOldRCFileDesignInfo( CString &oldRCdata );
 	void RemoveNewRCFileRESItems( );
+	void CheckTextClipping();
 
 	static int AddLanguage(CComboBox* pComboBox, LPCTSTR strLangCode, LANGID SelectedID);
 	static CString StringTokenize(CString strSource, LPCTSTR strDelimiters, int* pnStart);

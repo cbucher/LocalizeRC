@@ -158,12 +158,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Konrad Windszus and WDPS Software"
             VALUE "FileDescription", "A tool for localizing/translating Resource Scripts (RC files)"
-            VALUE "FileVersion", "1.8"
+            VALUE "FileVersion", "1.9"
             VALUE "InternalName", "LocalizeRC.exe"
             VALUE "LegalCopyright", "(c) 2003- 2004 by Konrad Windszus, 2013 by WDPS Software, 2015 by Christophe Bucher.  All rights reserved."
             VALUE "OriginalFilename", "LocalizeRC.exe"
             VALUE "ProductName", "LocalizeRC"
-            VALUE "ProductVersion", "1.8"
+            VALUE "ProductVersion", "1.9"
         END
     END
     BLOCK "VarFileInfo"
@@ -269,7 +269,7 @@ BEGIN
     IDS_ERR_OPENWORKSPACE   "Could not open workspace!"
     IDS_ERR_UNKNOWN         "Unknown error %d!"
     IDS_ERR_OPENINI         "Could not open INI file."
-    IDS_ABOUT               "Localize RC v1.8 -© 2003-2004\nby Konrad Windszus\nUpdates by WDPS Software 2013\n Updates by Christophe Bucher 2015"
+    IDS_ABOUT               "Localize RC v1.9 -© 2003-2004\nby Konrad Windszus\nUpdates by WDPS Software 2013\n Updates by Christophe Bucher 2015"
     IDS_LWSPACELOADED       "Workspace loaded!"
     IDS_LDIALOGSECFOUND     "Dialog section '%1' processed - %2!d! items found, %3!d! items updated, %4!d! items skipped"
     IDS_LKEYSKIPPED         "Entry '%1' in current section skipped due to mismatch with new entry of '%2'"
@@ -277,6 +277,10 @@ BEGIN
     IDS_LSECSKIPNF          "Dialog section %1 skipped - was not found in the new RC data"
     IDS_LMERGINGOLDRC       "A previous output RC file exists - will merge dialog size/pos info into new RC output where possible..."
     IDS_LERRSPFAIL          "Unexpected error matching size/pos for key %1 - new data was %2"
+    IDS_TEXTCLIPPED         "label found '%1' (%2,%3)-(%4,%5) line %6!d!"
+    IDS_TEXTCLIPPED2        "      needed size %1!d!x%2!d!"
+    IDS_TEXTCLIPPED3        "      recommended rect (%1!d!,%2!d!)-(%3!d!,%4!d!)"
+    IDS_TEXTCLIPPED4        "base %1!d!x%2!d!"
 END
 
 STRINGTABLE 

@@ -738,7 +738,6 @@ void CLocalizeRCDlg::MergeOldRCFileDialogLayout( CString &oldRCdata )
 					else // Unexpected failure to match size/pos data
 					{
 						// Log it
-						CString msg;
 						msg.FormatMessage( IDS_LERRSPFAIL, key.Left(10), sline );
 						LogUserMessage( msg );
 					}
@@ -746,7 +745,6 @@ void CLocalizeRCDlg::MergeOldRCFileDialogLayout( CString &oldRCdata )
 				else // Key not found in new RC output
 				{
 					// Log it
-					CString msg;
 					msg.FormatMessage( IDS_LKEYSKIPPED, key, newRCdata.Mid(nlinepos, key.GetLength()) );
 					LogUserMessage( msg );
 					secitmsskipped++;
@@ -762,6 +760,156 @@ void CLocalizeRCDlg::MergeOldRCFileDialogLayout( CString &oldRCdata )
 	{
 		msg.FormatMessage( IDS_LDIALOGSECFOUND, seckey, secitmsfound, secitmsupdated, secitmsskipped );
 		LogUserMessage( msg );
+	}
+}
+
+void CLocalizeRCDlg::CheckTextClipping()
+{
+	LogUserMessage(_T("**************************************************"));
+	LogUserMessage(_T("* detection of undersized labels"));
+	LogUserMessage(_T("**************************************************"));
+
+	CString msg;
+
+	// Check text clipping
+	// Parameters:
+	//
+	// Rectangles too small are reported to the log output
+	//
+	boost::tregex dsetexpr( _T("^ *[RCL]TEXT +\"([^\"]*)\", *[^,]+ *, *(\\d+) *, *(\\d+) *, *(\\d+) *, *(\\d+)") );
+	boost::tregex_iterator m1(boost::make_regex_iterator(newRCdata, dsetexpr, boost::match_not_dot_newline)), mEnd;
+
+	CDC dc;
+	dc.Attach(::GetDC(m_hWnd));
+
+	/*
+	// FONT pointsize, "typeface", weight, italic, charset
+	// FONT 8, "MS Shell Dlg", 400, 0, 0x1
+	int nHeight = -::MulDiv(8, dc.GetDeviceCaps(LOGPIXELSY), 72);
+	CFont font;
+	font.CreateFont(
+		nHeight,                                        // pointsize
+		0,
+		0,
+		0,
+		400,                                            // weight
+		0,                                              // italic
+		FALSE,
+		FALSE,
+		0x1,                                            // charset
+		OUT_DEFAULT_PRECIS,
+		CLIP_DEFAULT_PRECIS,
+		DEFAULT_QUALITY,
+		DEFAULT_PITCH,
+		_T("MS Shell Dlg"));
+
+	dc.SelectObject(font.m_hObject);
+	*/
+
+	TEXTMETRIC tm;
+	dc.GetTextMetrics(&tm);
+
+	LONG baseunitX = tm.tmAveCharWidth;
+	LONG baseunitY = tm.tmHeight;
+
+	/*
+	// we test system font
+	LONG l = ::GetDialogBaseUnits();
+	WORD baseunitX = LOWORD(l);
+	WORD baseunitY = HIWORD(l);
+	*/
+
+	msg.FormatMessage(
+		IDS_TEXTCLIPPED4,
+		baseunitX, baseunitY);
+	LogUserMessage(msg);
+
+	for( ; m1 != mEnd; ++m1 )
+	{
+		CString str( (*m1)[1].first, (*m1)[1].length() );
+		CString x  ( (*m1)[2].first, (*m1)[2].length() );
+		CString y  ( (*m1)[3].first, (*m1)[3].length() );
+		CString w  ( (*m1)[4].first, (*m1)[4].length() );
+		CString h  ( (*m1)[5].first, (*m1)[5].length() );
+
+		LONG baseX = _ttoi(x);
+		LONG baseY = _ttoi(y);
+		LONG pixelX = MulDiv(baseX, baseunitX, 4);
+		LONG pixelY = MulDiv(baseY, baseunitY, 8);
+
+		LONG baseW = _ttoi(w);
+		LONG baseH = _ttoi(h);
+		LONG pixelW = MulDiv(baseW, baseunitX, 4);
+		LONG pixelH = MulDiv(baseH, baseunitY, 8);
+
+		POINT point = { pixelX, pixelY };
+		SIZE  size  = { pixelW, pixelH };
+		CRect rect1(point, size);
+
+		CRect rect2 = rect1;
+		CRect rect3 = rect1;
+		dc.DrawText(str, rect2, DT_CALCRECT | DT_WORDBREAK);
+		dc.DrawText(str, rect3, DT_CALCRECT);
+
+		if( MulDiv(rect2.Width(), 4, baseunitX) <= MulDiv(rect1.Width(), 4, baseunitX)
+		    &&
+		    MulDiv(rect2.Height(), 8, baseunitY) <= MulDiv(rect1.Height(), 8, baseunitY) )
+			continue;
+
+		if( MulDiv(rect3.Width(), 4, baseunitX) <= MulDiv(rect1.Width(), 4, baseunitX)
+		    &&
+		    MulDiv(rect3.Height(), 8, baseunitY) <= MulDiv(rect1.Height(), 8, baseunitY) )
+			continue;
+
+		{
+			int line = _LineCount(newRCdata, 0, (*m1)[0].first - newRCdata) + 1;
+
+			// Log it
+			msg.FormatMessage(
+				IDS_TEXTCLIPPED,
+				str,
+				x, y, w, h,
+				line);
+			LogUserMessage(msg);
+
+			// vertically stretched
+			msg.FormatMessage(
+				IDS_TEXTCLIPPED2,
+				MulDiv(rect2.Width(), 4, baseunitX),
+				MulDiv(rect2.Height(), 8, baseunitY));
+			LogUserMessage(msg);
+
+			// horizontally stretched
+			msg.FormatMessage(
+				IDS_TEXTCLIPPED2,
+				MulDiv(rect3.Width(), 4, baseunitX),
+				MulDiv(rect3.Height(), 8, baseunitY));
+			LogUserMessage(msg);
+
+			// try with double width
+			pixelY = MulDiv(baseY - 4, baseunitY, 8);
+			pixelH = MulDiv(baseH + 8, baseunitY, 8);
+
+			POINT point = { pixelX, pixelY };
+			SIZE  size  = { pixelW, pixelH };
+			CRect rectA(point, size);
+
+			CRect rectB = rectA;
+			dc.DrawText(str, rectB, DT_CALCRECT | DT_WORDBREAK);
+
+			if( MulDiv(rectB.Width(), 4, baseunitX) <= MulDiv(rectA.Width(), 4, baseunitX)
+				&&
+				MulDiv(rectB.Height(), 8, baseunitY) <= MulDiv(rectA.Height(), 8, baseunitY) )
+			{
+				msg.FormatMessage(
+					IDS_TEXTCLIPPED3,
+					MulDiv(rectA.left, 4, baseunitX),
+					MulDiv(rectA.top, 8, baseunitY),
+					MulDiv(rectA.Width(), 4, baseunitX),
+					MulDiv(rectA.Height(), 8, baseunitY));
+				LogUserMessage(msg);
+			}
+		}
 	}
 }
 
@@ -979,6 +1127,8 @@ void CLocalizeRCDlg::OnBnClickedCreateoutput()
 			RemoveNewRCFileRESItems( );
 		//
 	} // endif: old RC file exists
+
+	CheckTextClipping();
 
 	try
 	{

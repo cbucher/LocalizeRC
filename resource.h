@@ -47,6 +47,10 @@
 #define IDS_LINIOPENING                 138
 #define IDS_LINICHECKING                139
 #define IDS_LINICHECKDONE               140
+#define IDS_TEXTCLIPPED                 141
+#define IDS_TEXTCLIPPED2                142
+#define IDS_TEXTCLIPPED3                143
+#define IDS_TEXTCLIPPED4                144
 #define IDC_INPUTRC                     1001
 #define IDC_LANGINI                     1002
 #define IDC_CHNG_INPUTRC                1003
@@ -74,7 +78,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        132
+#define _APS_NEXT_RESOURCE_VALUE        144
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1028
 #define _APS_NEXT_SYMED_VALUE           101
