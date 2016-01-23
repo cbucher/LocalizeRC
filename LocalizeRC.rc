@@ -158,12 +158,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Konrad Windszus and WDPS Software"
             VALUE "FileDescription", "A tool for localizing/translating Resource Scripts (RC files)"
-            VALUE "FileVersion", "1.9"
+            VALUE "FileVersion", "1.10"
             VALUE "InternalName", "LocalizeRC.exe"
-            VALUE "LegalCopyright", "(c) 2003- 2004 by Konrad Windszus, 2013 by WDPS Software, 2015 by Christophe Bucher.  All rights reserved."
+            VALUE "LegalCopyright", "(c) 2003 - 2004 by Konrad Windszus, 2013 by WDPS Software, 2015 - 2016 by Christophe Bucher.  All rights reserved."
             VALUE "OriginalFilename", "LocalizeRC.exe"
             VALUE "ProductName", "LocalizeRC"
-            VALUE "ProductVersion", "1.9"
+            VALUE "ProductVersion", "1.10"
         END
     END
     BLOCK "VarFileInfo"
@@ -269,7 +269,7 @@ BEGIN
     IDS_ERR_OPENWORKSPACE   "Could not open workspace!"
     IDS_ERR_UNKNOWN         "Unknown error %d!"
     IDS_ERR_OPENINI         "Could not open INI file."
-    IDS_ABOUT               "Localize RC v1.9 -© 2003-2004\nby Konrad Windszus\nUpdates by WDPS Software 2013\n Updates by Christophe Bucher 2015"
+    IDS_ABOUT               "Localize RC v1.10 -© 2003-2004\nby Konrad Windszus\nUpdates by WDPS Software 2013\n Updates by Christophe Bucher 2015-2016"
     IDS_LWSPACELOADED       "Workspace loaded!"
     IDS_LDIALOGSECFOUND     "Dialog section '%1' processed - %2!d! items found, %3!d! items updated, %4!d! items skipped"
     IDS_LKEYSKIPPED         "Entry '%1' in current section skipped due to mismatch with new entry of '%2'"
