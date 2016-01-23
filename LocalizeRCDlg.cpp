@@ -18,6 +18,31 @@
 
 //#define _MFC_VER 0x0420
 
+#define KEYWORD_ACCELERATORS 0
+#define KEYWORD_DIALOG       1
+#define KEYWORD_DIALOGEX     2
+#define KEYWORD_MENU         3
+#define KEYWORD_MENUEX       4
+#define KEYWORD_STRINGTABLE  5
+#define KEYWORD_DLGINIT      6
+#define KEYWORD_code_page    7
+
+#define NUMKEYWORDS 8
+LPCTSTR strKeywords[NUMKEYWORDS] =
+{
+	_T("ACCELERATORS"),
+	_T("DIALOG"),
+	_T("DIALOGEX"),
+	_T("MENU"),
+	_T("MENUEX"),
+	_T("STRINGTABLE"),
+	_T("DLGINIT"),
+	_T("code_page")
+};
+
+// random string, that indicates an error
+#define ERR_STR _T("asfdshkagzuwrthgadsfhgkh12385143258")
+
 int _LineCount( CString &srchBuf, int startPos = 0, int endPos = -1 )
 {
 	// Purpose: Get count of text lines in a specified area of a string buffer
@@ -330,22 +355,6 @@ HCURSOR CLocalizeRCDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(hSmallIcon);
 }
-
-#define NUMKEYWORDS 8
-LPCTSTR strKeyword[NUMKEYWORDS] = 
-{
-	_T("ACCELERATORS"),
-	_T("DIALOG"),
-	_T("DIALOGEX"),
-	_T("MENU"),
-	_T("MENUEX"),
-	_T("STRINGTABLE"),
-	_T("DLGINIT"),
-	_T("code_page")
-};
-	
-// random string, that indicates an error
-#define ERR_STR _T("asfdshkagzuwrthgadsfhgkh12385143258")
 
 BOOL CLocalizeRCDlg::OpenInputRC(BOOL bShowError)
 {
@@ -890,8 +899,8 @@ void CLocalizeRCDlg::CheckTextClipping()
 			pixelY = MulDiv(baseY - 4, baseunitY, 8);
 			pixelH = MulDiv(baseH + 8, baseunitY, 8);
 
-			POINT point = { pixelX, pixelY };
-			SIZE  size  = { pixelW, pixelH };
+			point = { pixelX, pixelY };
+			size  = { pixelW, pixelH };
 			CRect rectA(point, size);
 
 			CRect rectB = rectA;
@@ -924,7 +933,7 @@ void CLocalizeRCDlg::OnBnClickedCreateini()
 }
 
 // extract first caption after *pnPosition
-CString CLocalizeRCDlg::ExtractCaption(CString& strText, int* pnPosition, CString strKeyword, CString &strIDC )
+CString CLocalizeRCDlg::ExtractCaption(CString& strText, int* pnPosition, BYTE nKeyword, CString &strIDC )
 {
 	CString strCaption, strLine;
 	int nStart, nEnd, nStartQuote, nEndQuote;
@@ -932,7 +941,7 @@ CString CLocalizeRCDlg::ExtractCaption(CString& strText, int* pnPosition, CStrin
 	nStart = *pnPosition;
 
 	// DLGINIT: Microsoft-Format to store data for comboboxes
-	if( strKeyword == _T("DLGINIT") )
+	if( nKeyword == KEYWORD_DLGINIT )
 	{		
 		if( nStart == 0 )
 		{
@@ -1056,7 +1065,7 @@ CString CLocalizeRCDlg::ExtractCaption(CString& strText, int* pnPosition, CStrin
 		if ( nStartQuote >= 0 )
 			nStartQuote++;
 
-		if( nStartQuote == -1  || !MustBeTranslated(strLine, strKeyword) )	// not found
+		if( nStartQuote == -1  || !MustBeTranslated(strLine, nKeyword) )	// not found
 		{
 			strLine = "";
 			nStart = *pnPosition = nEnd+2;
@@ -1197,10 +1206,10 @@ void CLocalizeRCDlg::OnBnClickedCreateoutput()
 
 
 // checks if line contents strings that have to be translated
-bool CLocalizeRCDlg::MustBeTranslated(CString strLine, CString strKeyword )
+bool CLocalizeRCDlg::MustBeTranslated(CString strLine, BYTE nKeyword)
 {
 	// if it is stringtable -> translate
-	if( strKeyword == ::strKeyword[5] )
+	if( nKeyword == KEYWORD_STRINGTABLE )
 		return true;
 
 	bool bTranslate = true;
@@ -1373,7 +1382,7 @@ int CLocalizeRCDlg::WriteReadIni(bool bWrite)
 	{
 		nPosition = 0;
 		// search for keyword section in RC-file
-		while( (nPosition = FindSeperateWord( newRCdata, strKeyword[nKeyword], nPosition )) != -1 )
+		while( (nPosition = FindSeperateWord( newRCdata, strKeywords[nKeyword], nPosition )) != -1 )
 		{
 			nStart = nPosition;
 			
@@ -1395,27 +1404,27 @@ int CLocalizeRCDlg::WriteReadIni(bool bWrite)
 			nHelp = nPrevHelp = 0;
 
 			// extract caption
-			while( (strCaption = ExtractCaption( strHelp, &nHelp, strKeyword[nKeyword], strIDC )) != ERR_STR )
+			while( (strCaption = ExtractCaption( strHelp, &nHelp, nKeyword, strIDC )) != ERR_STR )
 			{
 				if( bWrite )
 				{
 					// check if key in Lang.INI already exists
-					strValue = IniEx.GetValue( strKeyword[nKeyword], strCaption );
+					strValue = IniEx.GetValue( strKeywords[nKeyword], strCaption );
 					if( strValue.IsEmpty() )
 					{
 						// insert line in Lang.INI
-						IniEx.SetValue( strKeyword[nKeyword], strCaption, PREFIX_CHANGEDITEM+strCaption );
+						IniEx.SetValue( strKeywords[nKeyword], strCaption, PREFIX_CHANGEDITEM+strCaption );
 					}
 					else
 					{
 						// insert line in Lang.INI
-						IniEx.SetValue( strKeyword[nKeyword], strCaption, PREFIX_CHANGEDITEM+strValue );
+						IniEx.SetValue( strKeywords[nKeyword], strCaption, PREFIX_CHANGEDITEM+strValue );
 					}
 				}
 				else
 				{
 					// check if key in Lang.INI exists
-					strValue = IniEx.GetValue( strKeyword[nKeyword], strCaption );
+					strValue = IniEx.GetValue( strKeywords[nKeyword], strCaption );
 					if( !strValue.IsEmpty() )
 					{
 						// if it is DLGINIT
@@ -1555,7 +1564,7 @@ int CLocalizeRCDlg::WriteReadIni(bool bWrite)
 			for( nKeyword = 0; nKeyword < NUMKEYWORDS; nKeyword++ )
 			{
 				// dont touch unknown sections
-				if( _tcscmp(strSections[nSection], strKeyword[nKeyword]) != 0 )
+				if( _tcscmp(strSections[nSection], strKeywords[nKeyword]) != 0 )
 					continue;
 
 				// Go through every key in this section

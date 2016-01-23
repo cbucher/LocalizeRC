@@ -75,11 +75,11 @@ private:
 	BOOL m_bNoSort;	
 
 	// checks if line contents strings that have to be translated
-	bool MustBeTranslated(CString strLine, CString strKeyword);
+	bool MustBeTranslated(CString strLine, BYTE nKeyword);
 	// search for '"' that is not a quotation mark inside the text ("")
 	int FindQuote(CString strLine, int nStartPos=0);
 	int WriteReadIni(bool bWrite);
-	CString ExtractCaption(CString& strText, int* pnPosition, CString strKeyword, CString &strIDC);
+	CString ExtractCaption(CString& strText, int* pnPosition, BYTE nKeyword, CString &strIDC);
 	static CString GetFolder(CString strPath);
 
 	BOOL OpenRCFile( CString filename, CString &strbuf, BOOL bShowError );
