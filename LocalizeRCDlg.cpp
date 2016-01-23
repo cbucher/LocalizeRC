@@ -699,9 +699,9 @@ void CLocalizeRCDlg::MergeOldRCFileDialogLayout( CString &oldRCdata )
 				// to translations of literal text.
 				//
 				// We will allow matches between xTEXT controls (CTEXT, LTEXT, and RTEXT), but not EDITTEXT
-				CString newkey = newRCdata.Mid(nlinepos, 10); // Isolate keys to compare
-				CString oldkey = key.Left(10);
-				BOOL keymatch = (oldkey == newkey); // Initial match result
+				CString newkey = newRCdata.Mid(nlinepos, 14); // Isolate keys to compare
+				CString oldkey = key.Left(14);
+				BOOL keymatch = (oldkey.Trim(L" \t") == newkey.Trim(L" \t")); // Initial match result
 				if ( !keymatch ) // Match failed, check for allowable xTEXT key matchups
 				{
 					int keyxTextpos = oldkey.Find( _T("TEXT") ) - 1; // Position of xTEXT entry in old key or -2 if none
