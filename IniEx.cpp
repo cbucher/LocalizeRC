@@ -18,7 +18,8 @@ static char THIS_FILE[]=__FILE__;
 
 CStdioUnicodeFile::CStdioUnicodeFile(CStdioUnicodeFile::FILEENCODING encoding):
 	CStdioFile(),
-  encoding(encoding)
+  encoding(encoding),
+	newLine("\r\n")
 {
 }
 
@@ -195,8 +196,15 @@ BOOL CStdioUnicodeFile::ReadString(CString& rString)
 	if (nLen != 0 && lpsz[nLen-1] == '\n') {
 		rString.GetBufferSetLength(nLen-1);
 		nLen = rString.GetLength();
-		if (nLen != 0 && lpsz[nLen-1] == '\r')
-			rString.GetBufferSetLength(nLen-1);
+		if( nLen != 0 && lpsz[nLen - 1] == '\r' )
+		{
+			newLine = "\r\n";
+			rString.GetBufferSetLength(nLen - 1);
+		}
+		else
+		{
+			newLine = "\n";
+		}
 	}
 
 	return result;
@@ -254,6 +262,8 @@ CIniEx::CIniEx(int GrowSize/*=4*/)
 	m_Keys=NULL;
 	m_Values=NULL;
 	m_allocatedObjectCount=0;
+
+	m_NewLine = "\r\n";
 }
 
 CIniEx::~CIniEx()
@@ -505,6 +515,8 @@ BOOL CIniEx::Open(LPCTSTR pFileName,
 			m_Values[m_SectionNo-1]->Add(tmpValue);
 			m_Sections.SetAtGrow(m_SectionNo-1,sectionStr);
 		}
+
+		m_NewLine = file.GetNewLine();
 		file.Close();
 	}
 	catch (CFileException *e)
@@ -647,21 +659,14 @@ CString CIniEx::WriteFile(BOOL makeBackup/*=FALSE*/)
 		return _T("");
 	}
 
-	CString strNewline;
-
 	file.WriteBOM();
-#ifdef UNICODE
-	strNewline = "\r\n";
-#else
-	strNewline = "\n";
-#endif
 
 	CString tmpLine;
 	for (int i=0;i<m_Sections.GetSize();i++)
 	{
 		if (!m_Sections.GetAt(i).IsEmpty())
 		{
-			tmpLine.Format(_T("[%s]%s"),m_Sections.GetAt(i), strNewline );
+			tmpLine.Format(_T("[%s]%s"),m_Sections.GetAt(i), m_NewLine );
 			file.WriteString(tmpLine);
 		}
 		if (!m_Keys[i]) continue;
@@ -670,7 +675,7 @@ CString CIniEx::WriteFile(BOOL makeBackup/*=FALSE*/)
 			//if key is empts we don't write "="
 			tmpLine.Format(_T("%s%s%s%s"),m_Keys[i]->GetAt(j),
 							m_Keys[i]->GetAt(j).IsEmpty()?"":"=",
-							   m_Values[i]->GetAt(j), strNewline );
+							   m_Values[i]->GetAt(j), m_NewLine );
 		
 			file.WriteString(tmpLine);
  
@@ -858,7 +863,7 @@ int CIniEx::CompareItems( CString str1, CString str2 )
 	return str1.CompareNoCase(str2);
 }
 
-BOOL CIniEx::Swap( int nSection, int nLeftIndex, int nRightIndex )
+bool CIniEx::Swap( int nSection, int nLeftIndex, int nRightIndex )
 {
 	CString strHelp = m_Keys[nSection]->GetAt(nLeftIndex);
 	m_Keys[nSection]->SetAt(nLeftIndex, m_Keys[nSection]->GetAt(nRightIndex) );
@@ -871,7 +876,7 @@ BOOL CIniEx::Swap( int nSection, int nLeftIndex, int nRightIndex )
 	return true;
 }
 
-void CIniEx::QuickSortRecursive(int nSection, int iLow, int iHigh, BOOL bAscending)
+void CIniEx::QuickSortRecursive(int nSection, int iLow, int iHigh, bool bAscending)
 {
 	// Params renamed for easier comparison with literature
 	int iLeft = iLow;

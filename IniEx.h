@@ -36,8 +36,11 @@ public:
 
 	static FILEENCODING GetFileEncoding(LPCTSTR lpszFileName);
 
+	inline const CString& GetNewLine(void) const { return newLine;  }
+
 private:
   FILEENCODING encoding;
+	CString      newLine;
 };
 
 #define MAX_SECTION_COUNT	512
@@ -66,7 +69,9 @@ private:
 	CString	m_BackupFileName;
 	CString m_FileName;
 	BOOL	m_makeBackup;
-	BOOL	m_Changed;	
+	BOOL	m_Changed;
+
+	CString	m_NewLine;
 
 public:
 	int		LookupSection	(CString *Section);
@@ -110,9 +115,8 @@ public:
 
 	void SortIniValues();
 	int CompareItems( CString str1, CString str2 );
-	BOOL CIniEx::Swap( int nSection, int nLeftIndex, int nRightIndex );
-	void CIniEx::QuickSortRecursive(int nSection, int iLow, int iHigh, BOOL bAscending);
-
+	bool Swap( int nSection, int nLeftIndex, int nRightIndex );
+	void QuickSortRecursive(int nSection, int iLow, int iHigh, bool bAscending);
 };
 
 #endif // !defined(AFX_INIEX_H__36888C4C_12D3_4F65_A78B_2F3C3576B5B8__INCLUDED_)
