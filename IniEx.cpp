@@ -865,6 +865,10 @@ int CIniEx::CompareItems( CString str1, CString str2 )
 
 bool CIniEx::Swap( int nSection, int nLeftIndex, int nRightIndex )
 {
+	// Ignore unnecessary swaps
+	if( nLeftIndex == nRightIndex ) return false;
+	if( nRightIndex == (nLeftIndex + 1) && CompareItems(m_Keys[nSection]->GetAt(nLeftIndex), m_Keys[nSection]->GetAt(nRightIndex)) == 0 ) return false;
+
 	CString strHelp = m_Keys[nSection]->GetAt(nLeftIndex);
 	m_Keys[nSection]->SetAt(nLeftIndex, m_Keys[nSection]->GetAt(nRightIndex) );
 	m_Keys[nSection]->SetAt(nRightIndex, strHelp );
@@ -903,8 +907,7 @@ void CIniEx::QuickSortRecursive(int nSection, int iLow, int iHigh, bool bAscendi
 
 		if( iLeft <= iRight )
 		{
-			if( iLeft != iRight ) // Ignore unnecessary swaps
-				Swap(nSection, iLeft, iRight);
+			Swap(nSection, iLeft, iRight);
 
 			iLeft++;
 			iRight--;
