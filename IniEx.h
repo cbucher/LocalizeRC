@@ -96,6 +96,7 @@ public:
 	void ResetContent();
 
 	CString WriteFile(BOOL makeBackup=FALSE);
+	void WriteFileXliff();
 
 	CString GetValue(CString Section,CString Key,CString DefaultValue=_T(""));
 	CString GetValue(CString Key);

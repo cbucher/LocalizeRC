@@ -685,6 +685,77 @@ CString CIniEx::WriteFile(BOOL makeBackup/*=FALSE*/)
 	return m_BackupFileName;
 }
 
+void CIniEx::WriteFileXliff()
+{
+	CStdioUnicodeFile file(CStdioUnicodeFile::FILEENCODING_UTF8);
+	if( !file.Open(m_FileName.Left(m_FileName.GetLength() - 4) + CString(".xlf"), CFILEFLAG_UNICODEHELPER | CFile::modeCreate | CFile::modeWrite) )
+	{
+		#ifdef _DEBUG
+			afxDump << "ERROR!!!!: The file could not open for writing\n";
+		#endif
+		return;
+	}
+
+	file.WriteBOM();
+
+	file.WriteString(CString("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"));
+	file.WriteString(CString("<xliff version=\"1.2\" xmlns=\"urn:oasis:names:tc:xliff:document:1.2\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd\">\n"));
+	file.WriteString(CString("\t<file source-language=\"en\" target-language=\"en\" datatype=\"winres\" original=\"") + m_FileName + CString("\">\n"));
+	file.WriteString(CString("\t\t<body>\n"));
+
+	CString tmpLine;
+	for (int i=0;i<m_Sections.GetSize();i++)
+	{
+		if( m_Sections.GetAt(i).IsEmpty() )
+		{
+			file.WriteString(CString("\t\t\t<group>\n"));
+		}
+		else
+		{
+			tmpLine.Format(_T("\t\t\t<group id=\"%s\">\n"),m_Sections.GetAt(i));
+			file.WriteString(tmpLine);
+		}
+
+		if( m_Keys[i] )
+		{
+			for( int j = 0; j <= m_Keys[i]->GetUpperBound(); j++ )
+			{
+				const CString& ref1 = m_Keys[i]->GetAt(j);
+				CString xmlencodedSource = ref1.Mid(1, ref1.GetLength() - 2);
+				xmlencodedSource.Replace(_T("&"), _T("&amp;"));
+				xmlencodedSource.Replace(_T("'"), _T("&apos;"));
+				xmlencodedSource.Replace(_T("\""), _T("&quot;"));
+				xmlencodedSource.Replace(_T("<"), _T("&lt;"));
+				xmlencodedSource.Replace(_T(">"), _T("&gt;"));
+
+				const CString& ref2 = m_Values[i]->GetAt(j);
+				CString xmlencodedTarget = ref2.Mid(1, ref2.GetLength() - 2);
+				xmlencodedTarget.Replace(_T("&"), _T("&amp;"));
+				xmlencodedTarget.Replace(_T("'"), _T("&apos;"));
+				xmlencodedTarget.Replace(_T("\""), _T("&quot;"));
+				xmlencodedTarget.Replace(_T("<"), _T("&lt;"));
+				xmlencodedTarget.Replace(_T(">"), _T("&gt;"));
+
+				tmpLine.Format(_T("\t\t\t\t<trans-unit id=\"%d\" resname=\"%d\" datatype=\"plaintext\">\n\t\t\t\t\t<source>%s</source>\n\t\t\t\t\t<target>%s</target>\n\t\t\t\t</trans-unit>\n"),
+											 i * 10000 + j,
+											 i * 10000 + j,
+											 xmlencodedSource,
+											 xmlencodedTarget);
+
+				file.WriteString(tmpLine);
+			}
+		}
+
+		file.WriteString(CString("\t\t\t</group>\n"));
+	}
+
+	file.WriteString(CString("\t\t</body>\n"));
+	file.WriteString(CString("\t</file>\n"));
+	file.WriteString(CString("</xliff>"));
+
+	file.Close();
+}
+
 BOOL CIniEx::GetWriteWhenChange(void)
 {
 	return m_writeWhenChange;

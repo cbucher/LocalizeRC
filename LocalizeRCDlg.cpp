@@ -1617,6 +1617,7 @@ int CLocalizeRCDlg::WriteReadIni(bool bWrite)
 			IniEx.SortIniValues();
 		// save changes
 		IniEx.WriteFile();
+		IniEx.WriteFileXliff();
 	}
 	if ( bWrite )
 		LogUserMessage( IDS_LINIFINISHED );
