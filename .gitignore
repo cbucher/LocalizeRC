@@ -8,6 +8,7 @@ ipch/
 *.sdf
 *.suo
 *.opendb
+*.VC.db
 
 *~
 *.bak
