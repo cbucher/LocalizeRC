@@ -41,6 +41,7 @@ void CStdioUnicodeFile::WriteBOM()
 		break;
 
 	case CStdioUnicodeFile::FILEENCODING_UTF8:
+	case CStdioUnicodeFile::FILEENCODING_UTF8_WITHOUT_BOM:
 		{
 			BYTE bom[3] = { 0xEF, 0xBB, 0xBF };
 			Write(bom, 3);
@@ -86,6 +87,48 @@ CStdioUnicodeFile::FILEENCODING CStdioUnicodeFile::GetFileEncoding(LPCTSTR lpszF
 
 	CStdioUnicodeFile::FILEENCODING result = File.ReadBOM();
 
+	if( result == CStdioUnicodeFile::FILEENCODING_ANSI )
+	{
+		// UTF-8 without BOM ?
+		unsigned char buf[8];
+		while( !feof(File.m_pStream) )
+		{
+			if( fread(buf, 1, 1, File.m_pStream) == 0 ) break;
+			size_t bytes = 0;
+			if( buf[0] < 0x80 )
+			{
+				// 0xxxxxxx  ASCII < 0x80 (128)
+				continue;
+			}
+			else
+			{
+				if( (buf[0] & 0xE0) == 0xC0 )
+				{
+					// 110xxxxx 10xxxxxx  2-byte
+					bytes = 1;
+				}
+				else if( (buf[0] & 0xF0) == 0xE0 )
+				{
+					// 1110xxxx 10xxxxxx 10xxxxxx  3-byte
+					bytes = 2;
+				}
+				else if( (buf[0] & 0xF8) == 0xF0 )
+				{
+					// 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx  4-byte
+					bytes = 3;
+				}
+
+				if( fread(buf, 1, bytes, File.m_pStream) != bytes ) goto ansi;
+				for( size_t i = 0; i < bytes; ++i )
+					if( (buf[i] & 0xC0) != 0x80 ) goto ansi;
+			}
+		}
+
+		result = CStdioUnicodeFile::FILEENCODING_UTF8_WITHOUT_BOM;
+	}
+
+	ansi:
+
 	File.Close();
 	return result;
 }
@@ -101,6 +144,7 @@ BOOL CStdioUnicodeFile::ReadString(CString& rString)
 	{
 #ifdef UNICODE
 	case CStdioUnicodeFile::FILEENCODING_UTF8:
+	case CStdioUnicodeFile::FILEENCODING_UTF8_WITHOUT_BOM:
 		{
 			char * utf8 = nullptr;
 			size_t size = 1;
@@ -216,6 +260,7 @@ void CStdioUnicodeFile::WriteString(LPCTSTR lpsz)
 	{
 #ifdef UNICODE
 	case CStdioUnicodeFile::FILEENCODING_UTF8:
+	case CStdioUnicodeFile::FILEENCODING_UTF8_WITHOUT_BOM:
 		{
 			int len = static_cast<int>(wcslen(lpsz));
 			int rc = ::WideCharToMultiByte(
@@ -438,6 +483,7 @@ BOOL CIniEx::Open(LPCTSTR pFileName,
 		{
 		case CStdioUnicodeFile::FILEENCODING_UTF16LE:
 		case CStdioUnicodeFile::FILEENCODING_UTF8:
+		case CStdioUnicodeFile::FILEENCODING_UTF8_WITHOUT_BOM:
 			if(!file.Open(pFileName, mode | CFILEFLAG_UNICODEHELPER, &e))
 			{
 				return false;

@@ -403,6 +403,9 @@ BOOL CLocalizeRCDlg::OpenRCFile( CString filename, CString &strbuf, BOOL bShowEr
 			pFile = new CStdioUnicodeFile(filename, CFile::modeRead | CFILEFLAG_UNICODEHELPER, encoding);
 			static_cast<CStdioUnicodeFile*>(pFile)->ReadBOM();
 			break;
+		case CStdioUnicodeFile::FILEENCODING_UTF8_WITHOUT_BOM:
+			pFile = new CStdioUnicodeFile(filename, CFile::modeRead | CFILEFLAG_UNICODEHELPER, encoding);
+			break;
 		default:
 			pFile = new CStdioUnicodeFile( filename, CFile::modeRead, CStdioUnicodeFile::FILEENCODING_ANSI );
 		}
