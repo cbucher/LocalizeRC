@@ -16,10 +16,8 @@
 // German (Germany) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
-#ifdef _WIN32
 LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -61,13 +59,11 @@ END
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -77,6 +73,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\LocalizeRC.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -140,8 +137,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,7,0,0
- PRODUCTVERSION 1,7,0,0
+ FILEVERSION 1,12,0,0
+ PRODUCTVERSION 1,12,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -158,12 +155,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Konrad Windszus and WDPS Software"
             VALUE "FileDescription", "A tool for localizing/translating Resource Scripts (RC files)"
-            VALUE "FileVersion", "1.11"
+            VALUE "FileVersion", "1.12.0.0"
             VALUE "InternalName", "LocalizeRC.exe"
-            VALUE "LegalCopyright", "(c) 2003 - 2004 by Konrad Windszus, 2013 by WDPS Software, 2015 - 2016 by Christophe Bucher.  All rights reserved."
+            VALUE "LegalCopyright", "(c) 2003 - 2004 by Konrad Windszus, 2013 by WDPS Software, 2015 - 2017 by Christophe Bucher.  All rights reserved."
             VALUE "OriginalFilename", "LocalizeRC.exe"
             VALUE "ProductName", "LocalizeRC"
-            VALUE "ProductVersion", "1.11"
+            VALUE "ProductVersion", "1.12.0.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -179,7 +176,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
@@ -224,6 +221,7 @@ END
 
 IDR_MANIFEST            RT_MANIFEST             "res\\LocalizeRC.manifest"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog Info
@@ -244,7 +242,7 @@ END
 // String Table
 //
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_ABOUTBOX            "&About LocalizeRC..."
     IDS_ERR_FILECOPY        "Could not copy file!"
@@ -259,7 +257,7 @@ BEGIN
     IDS_EXTLWSDESCRIPTION   "LocalizeRC Workspace(*.lws)|*.lws||"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_OLDFILEFORMAT       "The INI file contains sections, which are created with LocalizeRC before version 1.2. To make them compatible, remove all trailing and leading whitespaces from the section names (the ones within []) and try again!"
     IDS_UNICODE             "UNICODE (UTF-8)"
@@ -277,13 +275,9 @@ BEGIN
     IDS_LSECSKIPNF          "Dialog section %1 skipped - was not found in the new RC data"
     IDS_LMERGINGOLDRC       "A previous output RC file exists - will merge dialog size/pos info into new RC output where possible..."
     IDS_LERRSPFAIL          "Unexpected error matching size/pos for key %1 - new data was %2"
-    IDS_TEXTCLIPPED         "label found '%1' (%2,%3)-(%4,%5) line %6!d!"
-    IDS_TEXTCLIPPED2        "      needed size %1!d!x%2!d!"
-    IDS_TEXTCLIPPED3        "      recommended rect (%1!d!,%2!d!)-(%3!d!,%4!d!)"
-    IDS_TEXTCLIPPED4        "base %1!d!x%2!d!"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_LMERGINGOLDRC2      "Starting merge of dialog design guide margin settings..."
     IDS_LDESIGNSECSTAT      "Design section '%1' processed - %2!d! items found, %3!d! items updated, %4!d! items skipped"
@@ -298,9 +292,17 @@ BEGIN
     IDS_LINIOPENING         "Opening INI file for processing..."
     IDS_LINICHECKING        "Checking INI file..."
     IDS_LINICHECKDONE       "Check of INI file completed!"
+    IDS_TEXTCLIPPED         "label found '%1' (%2,%3)-(%4,%5) line %6!d!"
+    IDS_TEXTCLIPPED2        "      needed size %1!d!x%2!d!"
+    IDS_TEXTCLIPPED3        "      recommended rect (%1!d!,%2!d!)-(%3!d!,%4!d!)"
 END
 
-#endif    // English (U.S.) resources
+STRINGTABLE
+BEGIN
+    IDS_TEXTCLIPPED4        "base %1!d!x%2!d!"
+END
+
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
